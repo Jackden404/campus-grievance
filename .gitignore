@@ -1,0 +1,24 @@
+# ===========================
+# Campus Grievance - .gitignore
+# ===========================
+
+# 🔐 Sensitive files (DB credentials) - NEVER upload these!
+php/connect.php
+
+# 📁 User uploaded files (uploaded by students)
+php/uploads/
+
+# 🗑️ OS junk files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 💻 Editor/IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# 🐘 PHP logs
+*.log
+error_log

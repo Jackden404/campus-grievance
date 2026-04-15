@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-endpoint" content="php/csrf_token.php">
+    <title>Submit Complaint | Campus Grievance System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body class="page-soft-bg">
+
+<nav class="navbar navbar-dark top-nav">
+    <div class="container py-2">
+        <a href="index.html" class="navbar-brand fw-semibold">Campus Grievance Portal</a>
+        <div class="d-flex gap-2">
+            <a href="dashboard.html" class="btn btn-outline-light btn-sm">Dashboard</a>
+            <a href="track_status.html" class="btn btn-outline-light btn-sm">Track Status</a>
+        </div>
+    </div>
+</nav>
+
+<main class="form-wrap">
+    <div class="container">
+        <div class="row g-4 align-items-start justify-content-center">
+            <div class="col-12 col-lg-4">
+                <div class="grievance-shell p-4 p-lg-4">
+                    <h2 class="h5 fw-bold mb-3">Submission Guide</h2>
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="feature-dot"></span>
+                        <p class="mb-0 small">Files: JPEG, PNG, PDF</p>
+                    </div>
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="feature-dot"></span>
+                        <p class="mb-0 small">Max size: 10 MB</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <span class="feature-dot"></span>
+                        <p class="mb-0 small">Choose Other only if needed</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-8">
+                <div class="card form-card">
+                    <div class="form-head">
+                        <h3 class="h4 mb-1 fw-bold">Submit a New Grievance</h3>
+                        <p class="mb-0 small">Enter details below.</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="complaintForm" action="php/submit_complaint.php" method="post" enctype="multipart/form-data">
+                            <label for="email" class="form-label fw-semibold">Registered Email</label>
+                            <input id="email" type="email" name="email" class="form-control mb-3" placeholder="name@college.edu" required>
+
+                            <label for="category" class="form-label fw-semibold">Issue Category</label>
+                            <select id="category" name="category" class="form-select mb-3" required>
+                                <option value="">Select Category</option>
+                                <option value="Hostel">Hostel</option>
+                                <option value="Mess">Mess</option>
+                                <option value="Department">Department</option>
+                                <option value="Library">Library</option>
+                                <option value="Infrastructure">Infrastructure</option>
+                                <option value="Other">Other</option>
+                            </select>
+
+                            <div id="otherCategoryWrap" class="mb-3 d-none">
+                                <label for="category_other" class="form-label fw-semibold">Specify Category</label>
+                                <input id="category_other" type="text" name="category_other" class="form-control" placeholder="Enter your issue category">
+                                <p class="form-note mb-0 mt-1">Required only for Other.</p>
+                            </div>
+
+                            <label for="description" class="form-label fw-semibold">Issue Description</label>
+                            <textarea id="description" name="description" class="form-control mb-4" rows="5" placeholder="Describe the issue, location, and any urgency details." required></textarea>
+
+                            <div class="grievance-upload mb-4">
+                                <label for="attachment" class="form-label fw-semibold mb-1">Attach Supporting File (Optional)</label>
+                                <input id="attachment" type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf,application/pdf,image/jpeg,image/png">
+                                <small class="d-block mt-2">Allowed formats: JPEG, JPG, PNG, PDF. Max size: 10 MB.</small>
+                                <small id="fileValidationMsg" class="d-block mt-1 text-danger"></small>
+                            </div>
+
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="is_public" name="is_public" value="1">
+                                <label class="form-check-label" for="is_public">
+                                    Show this complaint in Common Complaints
+                                </label>
+                            </div>
+
+                            <button class="btn btn-primary w-100">Submit Complaint</button>
+                        </form>
+
+                        <div class="tip-box p-3 mt-4 text-muted">
+                            <span class="fw-semibold text-dark">Tip:</span> Include block/room/lab for faster action.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="assets/js/csrf.js"></script>
+<script>
+const categorySelect = document.getElementById("category");
+const otherCategoryWrap = document.getElementById("otherCategoryWrap");
+const otherCategoryInput = document.getElementById("category_other");
+const complaintForm = document.getElementById("complaintForm");
+const attachmentInput = document.getElementById("attachment");
+const fileValidationMsg = document.getElementById("fileValidationMsg");
+const submitButton = complaintForm.querySelector("button[type='submit'], button:not([type])");
+let isSubmitting = false;
+
+const allowedMimeTypes = ["image/jpeg", "image/png", "application/pdf"];
+const allowedExtensions = [".jpg", ".jpeg", ".png", ".pdf"];
+const maxSizeBytes = 10 * 1024 * 1024;
+
+function toggleOtherCategory() {
+    const isOther = categorySelect.value === "Other";
+    otherCategoryWrap.classList.toggle("d-none", !isOther);
+    otherCategoryInput.required = isOther;
+    if (!isOther) {
+        otherCategoryInput.value = "";
+    }
+}
+
+function validateFile(file) {
+    if (!file) {
+        fileValidationMsg.textContent = "";
+        return true;
+    }
+
+    const lowerName = file.name.toLowerCase();
+    const hasValidExtension = allowedExtensions.some(ext => lowerName.endsWith(ext));
+    const hasValidMime = allowedMimeTypes.includes(file.type);
+
+    if (!hasValidExtension || !hasValidMime) {
+        fileValidationMsg.textContent = "Only JPG, JPEG, PNG, or PDF files are allowed.";
+        return false;
+    }
+
+    if (file.size > maxSizeBytes) {
+        fileValidationMsg.textContent = "File size must be 10 MB or less.";
+        return false;
+    }
+
+    fileValidationMsg.textContent = "";
+    return true;
+}
+
+categorySelect.addEventListener("change", toggleOtherCategory);
+
+attachmentInput.addEventListener("change", function () {
+    const selectedFile = this.files[0];
+    if (!validateFile(selectedFile)) {
+        this.value = "";
+    }
+});
+
+complaintForm.addEventListener("submit", function (event) {
+    if (isSubmitting) {
+        event.preventDefault();
+        return;
+    }
+
+    if (!validateFile(attachmentInput.files[0])) {
+        event.preventDefault();
+        return;
+    }
+
+    isSubmitting = true;
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
+    }
+});
+</script>
+
+</body>
+</html>

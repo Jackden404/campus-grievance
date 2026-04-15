@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-endpoint" content="php/csrf_token.php">
+    <title>User Registration | Campus Grievance System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body class="page-soft-bg">
+
+<nav class="navbar navbar-dark top-nav">
+    <div class="container py-2">
+        <a href="index.html" class="navbar-brand fw-semibold">Campus Grievance Portal</a>
+        <div class="d-flex gap-2">
+            <a href="login.html" class="btn btn-outline-light btn-sm">Login</a>
+            <a href="track_status.html" class="btn btn-outline-light btn-sm">Track Status</a>
+        </div>
+    </div>
+</nav>
+
+<main class="auth-wrap">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-9 col-lg-6">
+                <div class="card auth-card">
+                    <div class="auth-head">
+                        <h3 class="h4 mb-1 fw-bold">Create Your Account</h3>
+                        <p class="mb-0 small">Register to get started.</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form action="php/register.php" method="post">
+                            <label for="name" class="form-label fw-semibold">Full Name</label>
+                            <input id="name" type="text" name="name" class="form-control mb-3" placeholder="Your full name" required>
+
+                            <label for="email" class="form-label fw-semibold">Email Address</label>
+                            <input id="email" type="email" name="email" class="form-control mb-3" placeholder="name@college.edu" required>
+
+                            <label for="password" class="form-label fw-semibold">Password</label>
+                            <input id="password" type="password" name="password" class="form-control mb-4" placeholder="Create a secure password" required>
+
+                            <button class="btn btn-primary w-100">Register</button>
+                        </form>
+
+                        <p class="text-center mt-3 mb-0">
+                            Already registered? <a href="login.html" class="text-decoration-none fw-semibold">Login here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="assets/js/csrf.js"></script>
+</body>
+</html>
