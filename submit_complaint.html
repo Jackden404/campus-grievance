@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-endpoint" content="php/csrf_token.php">
+    <meta name="description" content="Submit a new campus grievance with full details and optional attachment.">
     <title>Submit Complaint | Campus Grievance System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
 </head>
 <body class="page-soft-bg">
@@ -25,18 +27,20 @@
         <div class="row g-4 align-items-start justify-content-center">
             <div class="col-12 col-lg-4">
                 <div class="grievance-shell p-4 p-lg-4">
-                    <h2 class="h5 fw-bold mb-3">Submission Guide</h2>
+                    <h2 class="h5 fw-bold mb-3" style="color:#fff;">
+                        <i class="bi bi-journal-text me-2" style="opacity:0.7;"></i>Submission Guide
+                    </h2>
                     <div class="d-flex gap-2 mb-3">
                         <span class="feature-dot"></span>
-                        <p class="mb-0 small">Files: JPEG, PNG, PDF</p>
+                        <p class="mb-0 small" style="color:rgba(255,255,255,0.78);">Files: JPEG, PNG, PDF</p>
                     </div>
                     <div class="d-flex gap-2 mb-3">
                         <span class="feature-dot"></span>
-                        <p class="mb-0 small">Max size: 10 MB</p>
+                        <p class="mb-0 small" style="color:rgba(255,255,255,0.78);">Max size: 10 MB</p>
                     </div>
                     <div class="d-flex gap-2">
                         <span class="feature-dot"></span>
-                        <p class="mb-0 small">Choose Other only if needed</p>
+                        <p class="mb-0 small" style="color:rgba(255,255,255,0.78);">Choose Other only if needed</p>
                     </div>
                 </div>
             </div>
@@ -45,35 +49,51 @@
                 <div class="card form-card">
                     <div class="form-head">
                         <h3 class="h4 mb-1 fw-bold">Submit a New Grievance</h3>
-                        <p class="mb-0 small">Enter details below.</p>
+                        <p class="mb-0 small">Fill in the details below and our team will review your complaint promptly.</p>
                     </div>
                     <div class="card-body p-4">
                         <form id="complaintForm" action="php/submit_complaint.php" method="post" enctype="multipart/form-data">
-                            <label for="email" class="form-label fw-semibold">Registered Email</label>
-                            <input id="email" type="email" name="email" class="form-control mb-3" placeholder="name@college.edu" required>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="bi bi-envelope me-1" style="color:var(--accent);"></i> Registered Email
+                                </label>
+                                <input id="email" type="email" name="email" class="form-control" placeholder="name@college.edu" required>
+                            </div>
 
-                            <label for="category" class="form-label fw-semibold">Issue Category</label>
-                            <select id="category" name="category" class="form-select mb-3" required>
-                                <option value="">Select Category</option>
-                                <option value="Hostel">Hostel</option>
-                                <option value="Mess">Mess</option>
-                                <option value="Department">Department</option>
-                                <option value="Library">Library</option>
-                                <option value="Infrastructure">Infrastructure</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <div class="mb-3">
+                                <label for="category" class="form-label">
+                                    <i class="bi bi-tag me-1" style="color:var(--accent);"></i> Issue Category
+                                </label>
+                                <select id="category" name="category" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Hostel">Hostel</option>
+                                    <option value="Mess">Mess</option>
+                                    <option value="Department">Department</option>
+                                    <option value="Library">Library</option>
+                                    <option value="Infrastructure">Infrastructure</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
 
                             <div id="otherCategoryWrap" class="mb-3 d-none">
-                                <label for="category_other" class="form-label fw-semibold">Specify Category</label>
+                                <label for="category_other" class="form-label">
+                                    <i class="bi bi-pencil me-1" style="color:var(--accent);"></i> Specify Category
+                                </label>
                                 <input id="category_other" type="text" name="category_other" class="form-control" placeholder="Enter your issue category">
                                 <p class="form-note mb-0 mt-1">Required only for Other.</p>
                             </div>
 
-                            <label for="description" class="form-label fw-semibold">Issue Description</label>
-                            <textarea id="description" name="description" class="form-control mb-4" rows="5" placeholder="Describe the issue, location, and any urgency details." required></textarea>
+                            <div class="mb-4">
+                                <label for="description" class="form-label">
+                                    <i class="bi bi-chat-text me-1" style="color:var(--accent);"></i> Issue Description
+                                </label>
+                                <textarea id="description" name="description" class="form-control" rows="5" placeholder="Describe the issue, location, and any urgency details." required></textarea>
+                            </div>
 
                             <div class="grievance-upload mb-4">
-                                <label for="attachment" class="form-label fw-semibold mb-1">Attach Supporting File (Optional)</label>
+                                <label for="attachment" class="form-label fw-semibold mb-1">
+                                    <i class="bi bi-paperclip me-1" style="color:var(--accent);"></i> Attach Supporting File <span style="color:var(--ink-40);font-weight:400;">(Optional)</span>
+                                </label>
                                 <input id="attachment" type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf,application/pdf,image/jpeg,image/png">
                                 <small class="d-block mt-2">Allowed formats: JPEG, JPG, PNG, PDF. Max size: 10 MB.</small>
                                 <small id="fileValidationMsg" class="d-block mt-1 text-danger"></small>
@@ -81,16 +101,21 @@
 
                             <div class="form-check mb-4">
                                 <input class="form-check-input" type="checkbox" id="is_public" name="is_public" value="1">
-                                <label class="form-check-label" for="is_public">
+                                <label class="form-check-label" for="is_public" style="font-size:0.875rem;color:var(--ink-60);">
                                     Show this complaint in Common Complaints
                                 </label>
                             </div>
 
-                            <button class="btn btn-primary w-100">Submit Complaint</button>
+                            <button class="btn btn-primary w-100">
+                                <i class="bi bi-send me-1"></i> Submit Complaint
+                            </button>
                         </form>
 
-                        <div class="tip-box p-3 mt-4 text-muted">
-                            <span class="fw-semibold text-dark">Tip:</span> Include block/room/lab for faster action.
+                        <div class="tip-box p-3 mt-4">
+                            <span class="fw-semibold" style="color:var(--ink-80);">
+                                <i class="bi bi-lightbulb me-1" style="color:var(--accent);"></i>Tip:
+                            </span>
+                            Include block / room / lab number for faster action.
                         </div>
                     </div>
                 </div>

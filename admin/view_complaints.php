@@ -17,6 +17,7 @@ $result = mysqli_query($conn, $sql);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - View Complaints</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body class="page-soft-bg">
@@ -34,8 +35,12 @@ $result = mysqli_query($conn, $sql);
 <main class="py-4">
     <div class="container">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <h3 class="mb-2 mb-md-0">All Complaints</h3>
-            <a href="admin_dashboard.php" class="btn btn-outline-secondary btn-sm">Back</a>
+            <h3 class="mb-2 mb-md-0">
+                <i class="bi bi-list-ul me-2" style="color:var(--accent);"></i>All Complaints
+            </h3>
+            <a href="admin_dashboard.php" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
         </div>
 
         <div class="card card-soft">

@@ -1,0 +1,17 @@
+# Block direct web access to all PHP includes from the browser.
+# Only the web server process (Apache) can include these files.
+
+# Block access to sensitive config and helper files
+<FilesMatch "^(connect|csrf|security_headers|security_log|rate_limit)\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Ensure PHP files in the uploads directory cannot be executed
+<Directory uploads>
+    <FilesMatch "\.php$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    Options -Indexes
+</Directory>

@@ -1,36 +1,56 @@
 <?php
-include "connect.php";
+include 'security_headers.php';
+include 'connect.php';
 
-header("Content-Type: application/json");
+header('Content-Type: application/json');
 
-function column_exists($conn, $table, $column) {
-    $table_safe = mysqli_real_escape_string($conn, $table);
-    $column_safe = mysqli_real_escape_string($conn, $column);
-    $check = mysqli_query($conn, "SHOW COLUMNS FROM `$table_safe` LIKE '$column_safe'");
-    return $check && mysqli_num_rows($check) > 0;
-}
+// ── Public read-only endpoint — no auth required ───────────────────────────────
+// Rate-limit to prevent scraping / DoS
+include 'rate_limit.php';
+$rl_key = 'public_feed_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+rate_limit($rl_key, 60, 60); // 60 requests per minute per IP
 
-function table_exists($conn, $table) {
-    $table_safe = mysqli_real_escape_string($conn, $table);
-    $check = mysqli_query($conn, "SHOW TABLES LIKE '$table_safe'");
-    return $check && mysqli_num_rows($check) > 0;
-}
-
-$has_public_column = column_exists($conn, "complaints", "is_public");
-if (!$has_public_column) {
-    echo json_encode(array("success" => false, "message" => "Public complaints feature is not configured.", "data" => array()));
+// Only GET is sensible for a feed
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
 
-if (!table_exists($conn, "complaint_votes")) {
-    echo json_encode(array("success" => false, "message" => "Voting table is not configured.", "data" => array()));
+// Cache-control: allow CDN / browser to cache for 30 seconds
+header('Cache-Control: public, max-age=30');
+
+function col_exists(mysqli $conn, string $table, string $col): bool {
+    $t = mysqli_real_escape_string($conn, $table);
+    $c = mysqli_real_escape_string($conn, $col);
+    $r = mysqli_query($conn, "SHOW COLUMNS FROM `{$t}` LIKE '{$c}'");
+    return $r && mysqli_num_rows($r) > 0;
+}
+
+function tbl_exists(mysqli $conn, string $table): bool {
+    $t = mysqli_real_escape_string($conn, $table);
+    $r = mysqli_query($conn, "SHOW TABLES LIKE '{$t}'");
+    return $r && mysqli_num_rows($r) > 0;
+}
+
+if (!col_exists($conn, 'complaints', 'is_public')) {
+    echo json_encode(['success' => false, 'message' => 'Public complaints not configured.', 'data' => []]);
     exit;
 }
 
-$has_created_at = column_exists($conn, "complaints", "created_at");
+if (!tbl_exists($conn, 'complaint_votes')) {
+    echo json_encode(['success' => false, 'message' => 'Voting not configured.', 'data' => []]);
+    exit;
+}
 
-$sql = "SELECT MIN(c.id) AS id, c.category, c.description, " . ($has_created_at ? "MAX(c.created_at)" : "NULL") . " AS created_at,
-        COUNT(DISTINCT v.voter_email) AS upvotes
+$has_created_at = col_exists($conn, 'complaints', 'created_at');
+$created_select = $has_created_at ? 'MAX(c.created_at)' : 'NULL';
+
+// ── NOTE: user_email is intentionally excluded from the public feed ────────────
+// Never expose PII (emails) in the public JSON response.
+$sql = "SELECT MIN(c.id) AS id, c.category, c.description,
+               {$created_select} AS created_at,
+               COUNT(DISTINCT v.voter_email) AS upvotes
         FROM complaints c
         LEFT JOIN complaint_votes v ON v.complaint_id = c.id
         WHERE c.is_public = 1
@@ -39,24 +59,22 @@ $sql = "SELECT MIN(c.id) AS id, c.category, c.description, " . ($has_created_at 
         LIMIT 10";
 
 $result = mysqli_query($conn, $sql);
-$data = array();
+$data   = [];
 
 if (!$result) {
-    echo json_encode(array("success" => false, "message" => "Failed to load public complaints"));
+    echo json_encode(['success' => false, 'message' => 'Failed to load public complaints']);
     exit;
 }
 
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $data[] = array(
-            "id" => (int)$row["id"],
-            "category" => $row["category"],
-            "description" => $row["description"],
-            "created_at" => $row["created_at"],
-            "upvotes" => (int)$row["upvotes"]
-        );
-    }
+while ($row = mysqli_fetch_assoc($result)) {
+    $data[] = [
+        'id'          => (int)$row['id'],
+        // Escape at the source; the JS layer also escapes on render
+        'category'    => htmlspecialchars((string)$row['category'],    ENT_QUOTES, 'UTF-8'),
+        'description' => htmlspecialchars((string)$row['description'], ENT_QUOTES, 'UTF-8'),
+        'created_at'  => $row['created_at'],
+        'upvotes'     => (int)$row['upvotes'],
+    ];
 }
 
-echo json_encode(array("success" => true, "data" => $data));
-?>
+echo json_encode(['success' => true, 'data' => $data]);

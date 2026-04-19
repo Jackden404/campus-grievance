@@ -2,11 +2,24 @@
 # Campus Grievance - .gitignore
 # ===========================
 
-# 🔐 Sensitive files (DB credentials) - NEVER upload these!
+# 🔐 Sensitive files (DB credentials) - NEVER commit these!
+# ⚠️  WARNING: php/connect.php currently contains REAL credentials.
+#    They were committed in a previous push. ROTATE those DB credentials NOW.
 php/connect.php
+
+# Environment variable files
+.env
+.env.*
+!.env.example
 
 # 📁 User uploaded files (uploaded by students)
 php/uploads/
+
+# 📋 Security logs — never expose in version control
+logs/
+
+# Rate-limit temp files (if stored inside project)
+cgp_rate_limits/
 
 # 🗑️ OS junk files
 .DS_Store

@@ -1,4 +1,6 @@
 <?php
+include "../php/security_headers.php";
+include "../php/security_log.php";
 include "auth.php";
 require_admin();
 include "../php/connect.php";
@@ -59,13 +61,17 @@ $deleted_rows = mysqli_stmt_affected_rows($delete_stmt);
 mysqli_stmt_close($delete_stmt);
 
 if ($ok && $deleted_rows > 0) {
-    if ($attachment_path !== "") {
-        $full_path = realpath(__DIR__ . "/../") . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, ltrim($attachment_path, '/'));
+    if ($attachment_path !== '') {
+        $full_path = realpath(__DIR__ . '/../') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, ltrim($attachment_path, '/'));
         if ($full_path && is_file($full_path)) {
             @unlink($full_path);
         }
     }
-    header("Location: view_complaints.php");
+    security_log('COMPLAINT_DELETED', [
+        'admin' => $_SESSION['admin_username'] ?? '',
+        'id'    => $id,
+    ]);
+    header('Location: view_complaints.php');
     exit;
 }
 
