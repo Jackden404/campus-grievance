@@ -21,7 +21,7 @@ $password = $_POST['password']      ?? '';
 
 // ── CRITICAL FIX: Admin credentials must NOT be hard-coded in source code ─────
 //
-// Current code stores:  $valid_user = "admin";  $valid_pass = "admin123";
+// Current code stores:  $valid_user = "admin";  $valid_pass = "********";
 // This is a CRITICAL vulnerability — default weak credentials in source control.
 //
 // MIGRATION STEPS:
