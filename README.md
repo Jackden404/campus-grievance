@@ -75,7 +75,7 @@ Previous version:
 
 ### Submit Complaint
 
-![Submit Complaint](screenshots/Submit_Complaint.png)
+![](Submit_Complaint.png)
 
 ---
 
